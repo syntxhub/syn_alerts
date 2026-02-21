@@ -73,20 +73,20 @@ local function CreateOptionsWindow()
         SynAlertsOptionsFrame:Show()
         return SynAlertsOptionsFrame
     end
-    
+
     if not SynAlertsDB then
         SynAlertsDB = {}
         for k, v in pairs(defaults) do
             SynAlertsDB[k] = v
         end
     end
-    
+
     local isDark = (SynAlertsDB.darkMode == nil and defaults.darkMode) or SynAlertsDB.darkMode
-    
+
     local BORDER_WHITE = 2
     local W = 350
     local H = 400
-    
+
     local container = CreateFrame("Frame", "SynAlertsOptionsFrame", UIParent)
     container:SetFrameStrata("DIALOG")
     container:SetSize(W + BORDER_WHITE * 2, H + BORDER_WHITE * 2)
@@ -94,7 +94,7 @@ local function CreateOptionsWindow()
     container:SetMovable(true)
     container:EnableMouse(true)
     container:SetClampedToScreen(true)
-    
+
     local function addBorderEdge(point, relPoint, x, y, w, h)
         local t = container:CreateTexture(nil, "OVERLAY")
         t:SetTexture(WHITE8)
@@ -107,40 +107,35 @@ local function CreateOptionsWindow()
     addBorderEdge("BOTTOMLEFT", "BOTTOMLEFT", 0, 0, container:GetWidth(), BORDER_WHITE)
     addBorderEdge("TOPLEFT", "TOPLEFT", 0, 0, BORDER_WHITE, container:GetHeight())
     addBorderEdge("TOPRIGHT", "TOPRIGHT", 0, 0, BORDER_WHITE, container:GetHeight())
-    
+
     local win = CreateFrame("Frame", nil, container)
     win:SetSize(W, H)
     win:SetPoint("CENTER", 0, 0)
-    
+
     if win.SetBackdrop then
         win:SetBackdrop({
-            bgFile = TOOLTIP_BG,
-            edgeFile = DIALOG_BORDER,
-            tile = true,
-            tileSize = 16,
-            edgeSize = 32,
-            insets = { left = 11, right = 12, top = 12, bottom = 11 }
+            bgFile = WHITE8,
+            edgeFile = nil,
+            tile = false,
         })
+        win:SetBackdropColor(0.1, 0.1, 0.1, 0.95)
     else
         local bg = win:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints(win)
-        bg:SetTexture(TOOLTIP_BG)
-        bg:SetTexCoord(0, 1, 0, 1)
-        local edge = win:CreateTexture(nil, "BORDER")
-        edge:SetAllPoints(win)
-        edge:SetTexture(DIALOG_BORDER)
+        bg:SetTexture(WHITE8)
+        bg:SetVertexColor(0.1, 0.1, 0.1)
     end
-    
+
     local TITLE_HEIGHT = 40
     local PAD = 24
-    
+
     local titleBar = win:CreateTexture(nil, "ARTWORK")
     titleBar:SetTexture(DIALOG_HEADER)
     titleBar:SetPoint("TOPLEFT", 12, -8)
     titleBar:SetPoint("TOPRIGHT", -12, -8)
     titleBar:SetHeight(32)
-    titleBar:SetTexCoord(0, 1, 0, 32/64)
-    
+    titleBar:SetTexCoord(0, 1, 0, 32 / 64)
+
     local title = win:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("LEFT", win, "TOPLEFT", PAD, -TITLE_HEIGHT / 2 - 4)
     title:SetPoint("RIGHT", win, "TOPRIGHT", -44, -TITLE_HEIGHT / 2 - 4)
@@ -148,7 +143,7 @@ local function CreateOptionsWindow()
     title:SetText("syn_alerts")
     title:SetTextColor(1, 0.82, 0)
     win._title = title
-    
+
     local close = CreateFrame("Button", nil, win)
     close:SetSize(24, 24)
     close:SetPoint("TOPRIGHT", win, "TOPRIGHT", -14, -10)
@@ -165,7 +160,7 @@ local function CreateOptionsWindow()
     close:SetPushedTexture(closePushed)
     close:SetHighlightTexture(CLOSE_HIGHLIGHT)
     win._close = close
-    
+
     local drag = CreateFrame("Button", nil, win)
     drag:SetPoint("TOPLEFT", 12, -4)
     drag:SetPoint("TOPRIGHT", -40, -4)
@@ -176,42 +171,42 @@ local function CreateOptionsWindow()
     drag:SetScript("OnMouseUp", function()
         container:StopMovingOrSizing()
     end)
-    
+
     local content = CreateFrame("Frame", nil, win)
     content:SetPoint("TOPLEFT", win, "TOPLEFT", PAD, -TITLE_HEIGHT - PAD)
     content:SetPoint("BOTTOMRIGHT", win, "BOTTOMRIGHT", -PAD, PAD)
-    
+
     local cbs = {}
     local yOff = 0
     local ROW = 28
-    
+
     local function AddCheckbox(label, key, isDarkMode)
         local row = CreateFrame("Frame", nil, content)
         row:SetSize(280, ROW)
         row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, yOff)
-        
+
         local cb = CreateFrame("CheckButton", nil, row)
         cb:SetSize(24, 24)
         cb:SetPoint("LEFT", row, "LEFT", 0, 0)
         cb.key = key
-        
+
         cb:SetNormalTexture(CHECKBOX_UP)
         cb:SetPushedTexture(CHECKBOX_DOWN)
         cb:SetHighlightTexture(CHECKBOX_HIGHLIGHT)
         cb:SetCheckedTexture(CHECKBOX_CHECK)
         cb:SetDisabledCheckedTexture(CHECKBOX_CHECK)
-        
+
         local labelText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         labelText:SetPoint("LEFT", cb, "RIGHT", 8, 0)
         labelText:SetJustifyH("LEFT")
         labelText:SetText(label)
-        if isDark then
+        if isDarkMode then
             labelText:SetTextColor(0.9, 0.9, 0.85)
         else
             labelText:SetTextColor(0.2, 0.2, 0.2)
         end
         cb._label = labelText
-        
+
         cb:SetScript("OnClick", function(self)
             if SynAlertsDB then
                 SynAlertsDB[key] = self:GetChecked()
@@ -220,19 +215,19 @@ local function CreateOptionsWindow()
                 end
             end
         end)
-        
+
         local v = SynAlertsDB and SynAlertsDB[key]
         if v == nil then v = (isDarkMode and defaults.darkMode) or defaults[key] or false end
         cb:SetChecked(v)
-        
+
         cbs[#cbs + 1] = cb
         yOff = yOff - ROW
         return cb
     end
-    
+
     AddCheckbox("Dark mode", "darkMode", true)
     yOff = yOff - 8
-    
+
     AddCheckbox("Announce CC", "announceCC")
     AddCheckbox("Announce DoTs", "announceDots")
     AddCheckbox("Announce Curse", "announceCurse")
@@ -240,11 +235,12 @@ local function CreateOptionsWindow()
     AddCheckbox("Announce Poison", "announcePoison")
     AddCheckbox("Announce Magic", "announceMagic")
     AddCheckbox("Announce Enrage", "announceEnrage")
-    
+
     win._cbs = cbs
-    
+
     function win:ApplyTheme()
-        local dark = (SynAlertsDB and SynAlertsDB.darkMode == true) or (SynAlertsDB.darkMode == nil and defaults.darkMode)
+        local dark = (SynAlertsDB and SynAlertsDB.darkMode == true) or
+            (SynAlertsDB.darkMode == nil and defaults.darkMode)
         if self._title then
             self._title:SetTextColor(1, 0.82, 0)
         end
@@ -258,7 +254,7 @@ local function CreateOptionsWindow()
             end
         end
     end
-    
+
     win:SetScript("OnShow", function(self)
         for _, c in ipairs(cbs) do
             if c.key and SynAlertsDB then
@@ -269,7 +265,7 @@ local function CreateOptionsWindow()
         end
         self:ApplyTheme()
     end)
-    
+
     container:Hide()
     return container
 end
@@ -293,10 +289,8 @@ SlashCmdList["syn_alerts"] = function(msg)
 
     if msg == "test" then
         PrintAlert("{rt8} TEST DEBUFF" .. " on " .. UnitName("player") .. " {rt8}")
-
     elseif msg == "config" or msg == "options" or msg == "settings" then
         ShowOptions()
-
     else
         PrintMessage("Commands:")
         PrintMessage("/sa test - Trigger test alert")
@@ -319,23 +313,21 @@ frame:SetScript("OnEvent", function(self, event, arg1)
         end
 
         StartupMessage()
-        
+
         return
     end
 
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local combatLogData = {CombatLogGetCurrentEventInfo()}
+        local combatLogData = { CombatLogGetCurrentEventInfo() }
         local subEvent = combatLogData[2]
         local destGUID = combatLogData[8]
-        local spellId = combatLogData[12]
         local spellName = combatLogData[13]
 
         if (subEvent == "SPELL_AURA_APPLIED"
-        or subEvent == "SPELL_AURA_REFRESH"
-        or subEvent == "SPELL_AURA_APPLIED_DOSE")
-        and IsPlayer(destGUID)
-        and spellName then
-
+                or subEvent == "SPELL_AURA_REFRESH"
+                or subEvent == "SPELL_AURA_APPLIED_DOSE")
+            and IsPlayer(destGUID)
+            and spellName then
             local playerName = UnitName("player")
 
             local name, icon, count, debuffType, duration, expirationTime =
@@ -347,27 +339,21 @@ frame:SetScript("OnEvent", function(self, event, arg1)
 
             if isCC and SynAlertsDB.announceCC then
                 PrintAlert(" {rt8} " .. spellName .. " (CC) on " .. playerName .. " {rt8} ")
-
             elseif debuffType == "Curse" and SynAlertsDB.announceCurse then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-
             elseif debuffType == "Disease" and SynAlertsDB.announceDisease then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-
             elseif debuffType == "Poison" and SynAlertsDB.announcePoison then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-
             elseif debuffType == "Magic" and SynAlertsDB.announceMagic then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-
             elseif debuffType == "Enrage" and SynAlertsDB.announceEnrage then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-
             elseif SynAlertsDB.announceDots then
                 if debuffType and debuffType ~= "" and
-                   debuffType ~= "Curse" and debuffType ~= "Disease" and 
-                   debuffType ~= "Poison" and debuffType ~= "Magic" and 
-                   debuffType ~= "Enrage" then
+                    debuffType ~= "Curse" and debuffType ~= "Disease" and
+                    debuffType ~= "Poison" and debuffType ~= "Magic" and
+                    debuffType ~= "Enrage" then
                     PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
                 end
             end
