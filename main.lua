@@ -8,7 +8,6 @@ end
 
 local frame = CreateFrame("Frame")
 
-
 local defaults = {
     announceCC = true,
     announceDots = true,
@@ -19,7 +18,6 @@ local defaults = {
     announceEnrage = true,
     darkMode = true,
 }
-
 
 local function PrintMessage(msg)
     print("|cff00ff00[syn_alerts]|r " .. msg)
@@ -41,7 +39,6 @@ local function IsPlayer(destGUID)
     return destGUID == UnitGUID("player")
 end
 
-
 local function StartupMessage()
     local interfaceVersion = select(4, GetBuildInfo())
 
@@ -52,7 +49,6 @@ local function StartupMessage()
 
     PrintMessage("Version " .. ADDON_VERSION .. " loaded.")
 end
-
 
 local DIALOG_BG = "Interface\\DialogFrame\\UI-DialogBox-Background"
 local DIALOG_BORDER = "Interface\\DialogFrame\\UI-DialogBox-Border"
@@ -66,7 +62,6 @@ local CHECKBOX_HIGHLIGHT = "Interface\\Buttons\\UI-CheckBox-Highlight"
 local CLOSE_BG = "Interface\\Buttons\\UI-Panel-MinimizeButton-Up"
 local CLOSE_DOWN = "Interface\\Buttons\\UI-Panel-MinimizeButton-Down"
 local CLOSE_HIGHLIGHT = "Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight"
-
 
 local function CreateOptionsWindow()
     if SynAlertsOptionsFrame then
@@ -338,7 +333,7 @@ frame:SetScript("OnEvent", function(self, event, arg1)
             local isCC = (not debuffType or debuffType == "")
 
             if isCC and SynAlertsDB.announceCC then
-                PrintAlert(" {rt8} " .. spellName .. " (CC) on " .. playerName .. " {rt8} ")
+                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
             elseif debuffType == "Curse" and SynAlertsDB.announceCurse then
                 PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
             elseif debuffType == "Disease" and SynAlertsDB.announceDisease then
