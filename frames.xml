@@ -1,0 +1,70 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Frame name="SynAlertsOptionsFrame" parent="UIParent" frameStrata="DIALOG" movable="true" enableMouse="true" clampedToScreen="true" hidden="true">
+        <Size x="354" y="404"/>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        
+        <!-- Main Content Frame -->
+        <Frame name="SynAlertsOptionsFrameContent">
+            <Size x="350" y="400"/>
+            <Anchors>
+                <Anchor point="CENTER" x="0" y="0"/>
+            </Anchors>
+            
+            <!-- Background -->
+            <Layers>
+                <Layer level="BACKGROUND">
+                    <Texture name="SynAlertsOptionsFrameContentBg">
+                        <AllPoints/>
+                        <TextureFile id="1">Interface\Buttons\WHITE8x8</TextureFile>
+                        <VertexColor r="0.1" g="0.1" b="0.1" a="0.95"/>
+                    </Texture>
+                </Layer>
+                <Layer level="BORDER">
+                    <Texture>
+                        <AllPoints/>
+                        <TextureFile id="1">Interface\Buttons\WHITE8x8</TextureFile>
+                        <VertexColor r="1" g="1" b="1"/>
+                    </Texture>
+                </Layer>
+            </Layers>
+            
+            <!-- Title -->
+            <FontString name="SynAlertsOptionsFrameContentTitle" inherits="GameFontNormalLarge">
+                <Anchors>
+                    <Anchor point="TOP" x="0" y="-10"/>
+                </Anchors>
+                <Color r="1" g="0.82" b="0"/>
+            </FontString>
+            
+            <!-- Close Button -->
+            <Button name="SynAlertsOptionsFrameContentCloseButton">
+                <Size x="24" y="24"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-10" y="-10"/>
+                </Anchors>
+                <NormalTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Up"/>
+                <PushedTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Down"/>
+                <HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD"/>
+            </Button>
+            
+            <!-- Drag Bar (invisible button for dragging) -->
+            <Button name="SynAlertsOptionsFrameContentDragBar">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="5" y="-5"/>
+                    <Anchor point="TOPRIGHT" x="-30" y="-5"/>
+                </Anchors>
+                <Size y="35"/>
+            </Button>
+            
+            <!-- Content Area for Checkboxes -->
+            <Frame name="SynAlertsOptionsFrameContentScrollContent">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="20" y="-50"/>
+                    <Anchor point="BOTTOMRIGHT" x="-20" y="20"/>
+                </Anchors>
+            </Frame>
+        </Frame>
+    </Frame>
+</Ui>
