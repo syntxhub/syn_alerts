@@ -13,3 +13,7 @@ Pure spaghetti code, not gonnna fit it anytime soon either lol
 5. load into wow and you're good to go!
 
 If you want to turn off some features you can simply type "/sa config" in the ingame chat and then untick what you don't want!
+
+<a href="https://i.vgy.me/44jhgK.png" target="_blank" alt="Config box"></a>
+<a href="https://i.vgy.me/b3PULf.png" target="_blank" alt="Test Buff"></a>
+<a href="https://i.vgy.me/W3ptNs.png" target="_blank" alt="Test Buff in chat"></a>
