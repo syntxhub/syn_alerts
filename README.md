@@ -2,6 +2,14 @@ SImple alert system that alerts the player of curses / debuffs / Diseases / pois
 
 Pure spaghetti code, not gonnna fit it anytime soon either lol
 
+1. Download the latest release
 
+2. Unzip folder with WINRAR or 7ZIP or whatever you use
 
-start config with "/sa config"
+3. go to your WOW Classic addons folder (C:\Program Files (x86)\World of Warcraft_anniversary\_\Interface)
+
+4. Place the unzipped folder "syn_alerts" inside the addons folder
+
+5. load into wow and you're good to go!
+
+If you want to turn off some features you can simply type "/sa config" in the ingame chat and then untick what you don't want!
