@@ -1,5 +1,5 @@
 local ADDON_NAME = ...
-local ADDON_VERSION = "1.1.2"
+local ADDON_VERSION = "1.1.3"
 local REQUIRED_INTERFACE = 20505
 
 if not ADDON_NAME or ADDON_NAME == "" then
@@ -30,7 +30,7 @@ end
 
 local lastAlertMessage = nil
 local lastAlertTime = 0
-local ALERT_COOLDOWN = 15
+local ALERT_COOLDOWN = 20
 
 local function SendAlert(msg)
     if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
