@@ -1,5 +1,5 @@
 local ADDON_NAME = ...
-local ADDON_VERSION = "1.1"
+local ADDON_VERSION = "1.1.2"
 local REQUIRED_INTERFACE = 20505
 
 if not ADDON_NAME or ADDON_NAME == "" then
@@ -32,39 +32,30 @@ local lastAlertMessage = nil
 local lastAlertTime = 0
 local ALERT_COOLDOWN = 15
 
+local function SendAlert(msg)
+    if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+        SendChatMessage(msg, "INSTANCE_CHAT")
+    elseif IsInRaid() then
+        SendChatMessage(msg, "RAID")
+    elseif IsInGroup() then
+        SendChatMessage(msg, "PARTY")
+    else
+        print("|cffff8800[syn_alerts]|r " .. msg)
+    end
+end
+
 local function PrintAlert(msg)
     local currentTime = GetTime()
-
-
     if msg ~= lastAlertMessage then
         lastAlertMessage = msg
         lastAlertTime = currentTime
-
-        if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
-            SendChatMessage(msg, "INSTANCE_CHAT")
-        elseif IsInRaid() then
-            SendChatMessage(msg, "RAID")
-        elseif IsInGroup() then
-            SendChatMessage(msg, "PARTY")
-        else
-            print("|cffff8800[syn_alerts]|r " .. msg)
-        end
+        SendAlert(msg)
         return
     end
 
-
     if currentTime - lastAlertTime >= ALERT_COOLDOWN then
         lastAlertTime = currentTime
-
-        if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
-            SendChatMessage(msg, "INSTANCE_CHAT")
-        elseif IsInRaid() then
-            SendChatMessage(msg, "RAID")
-        elseif IsInGroup() then
-            SendChatMessage(msg, "PARTY")
-        else
-            print("|cffff8800[syn_alerts]|r " .. msg)
-        end
+        SendAlert(msg)
     end
 end
 
@@ -74,37 +65,20 @@ end
 
 local function StartupMessage()
     local interfaceVersion = select(4, GetBuildInfo())
-
+    if ADDON_VERSION ~= "1.1.2" then
+        PrintMessage("An update is available on curseforge or github, please update!")
+    end
     if interfaceVersion ~= REQUIRED_INTERFACE then
         PrintMessage("Interface mismatch. Expected: "
             .. REQUIRED_INTERFACE .. " Current: " .. interfaceVersion)
     end
-
     PrintMessage("Version " .. ADDON_VERSION .. " loaded.")
 end
 
 local function ApplyTheme(winContent, cbs)
     local dark = (SynAlertsDB and SynAlertsDB.darkMode == true) or defaults.darkMode
-    if winContent.Title then
+    if winContent and winContent.Title then
         winContent.Title:SetTextColor(1, 0.82, 0)
-    end
-    if cbs then
-        for _, cb in ipairs(cbs) do
-            if cb._label then
-                if dark then
-                    cb._label:SetTextColor(0.9, 0.9, 0.85)
-                else
-                    cb._label:SetTextColor(0.2, 0.2, 0.2)
-                end
-            end
-        end
-    end
-end
-
-local function ApplyThemeForCheckboxes(cbs)
-    local dark = (SynAlertsDB and SynAlertsDB.darkMode == true) or defaults.darkMode
-    if SynAlertsOptionsFrameContentTitle then
-        SynAlertsOptionsFrameContentTitle:SetTextColor(1, 0.82, 0)
     end
     if cbs then
         for _, cb in ipairs(cbs) do
@@ -131,8 +105,12 @@ local function SetupOptionsWindow()
         end
     end
 
-
     local frame = CreateFrame("Frame", "SynAlertsOptionsFrame", UIParent)
+    if not frame then
+        PrintMessage("ERROR: Failed to create frame.")
+        return false
+    end
+
     frame:SetFrameStrata("DIALOG")
     frame:SetWidth(750)
     frame:SetHeight(400)
@@ -141,11 +119,9 @@ local function SetupOptionsWindow()
     frame:EnableMouse(true)
     frame:SetClampedToScreen(true)
 
-
     local bg = frame:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints(frame)
     bg:SetColorTexture(0.1, 0.1, 0.1, 1.0)
-
 
     local borderTop = frame:CreateTexture(nil, "BORDER")
     borderTop:SetColorTexture(0.5, 0.5, 0.5, 1.0)
@@ -167,20 +143,18 @@ local function SetupOptionsWindow()
     borderRight:SetPoint("TOPRIGHT", 0, 0)
     borderRight:SetSize(2, 400)
 
-
     local titleBg = frame:CreateTexture(nil, "ARTWORK")
     titleBg:SetColorTexture(0.2, 0.2, 0.3, 1.0)
     titleBg:SetPoint("TOPLEFT", 0, 0)
     titleBg:SetPoint("TOPRIGHT", 0, 0)
     titleBg:SetHeight(35)
 
-
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 15, -10)
     title:SetText("Syn - Simple Debuff Alerts")
     title:SetTextColor(1, 1, 1)
     title:SetJustifyH("LEFT")
-
+    frame.Title = title
 
     local close = CreateFrame("Button", nil, frame)
     close:SetSize(24, 24)
@@ -192,7 +166,6 @@ local function SetupOptionsWindow()
         frame:Hide()
     end)
 
-
     local drag = CreateFrame("Button", nil, frame)
     drag:SetPoint("TOPLEFT", 0, 0)
     drag:SetPoint("TOPRIGHT", -30, 0)
@@ -203,7 +176,6 @@ local function SetupOptionsWindow()
     drag:SetScript("OnMouseUp", function()
         frame:StopMovingOrSizing()
     end)
-
 
     local scroll = CreateFrame("ScrollFrame", nil, frame)
     scroll:SetPoint("TOPLEFT", 3, -35)
@@ -244,7 +216,7 @@ local function SetupOptionsWindow()
             if SynAlertsDB then
                 SynAlertsDB[key] = self:GetChecked()
                 if key == "darkMode" then
-                    ApplyThemeForCheckboxes(cbs)
+                    ApplyTheme(frame, cbs)
                 end
             end
         end)
@@ -267,11 +239,10 @@ local function SetupOptionsWindow()
     AddCheckbox("Announce Magic", "announceMagic")
     AddCheckbox("Announce Enrage", "announceEnrage")
 
-
     scrollChild:SetHeight(math.abs(yOff))
 
     frame._cbs = cbs
-    ApplyThemeForCheckboxes(cbs)
+    ApplyTheme(frame, cbs)
 
     frame:SetScript("OnShow", function(self)
         for _, c in ipairs(cbs) do
@@ -329,6 +300,14 @@ end
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
+local DEBUFF_TYPE_CONFIG = {
+    ["Curse"] = "announceCurse",
+    ["Disease"] = "announceDisease",
+    ["Poison"] = "announcePoison",
+    ["Magic"] = "announceMagic",
+    ["Enrage"] = "announceEnrage",
+}
+
 frame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == ADDON_NAME then
         SynAlertsDB = SynAlertsDB or {}
@@ -344,45 +323,25 @@ frame:SetScript("OnEvent", function(self, event, arg1)
     end
 
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-        local combatLogData = { CombatLogGetCurrentEventInfo() }
-        local subEvent = combatLogData[2]
-        local destGUID = combatLogData[8]
-        local spellName = combatLogData[13]
+        local subEvent, destGUID, spellName = select(2, CombatLogGetCurrentEventInfo())
 
-        if (subEvent == "SPELL_AURA_APPLIED"
-                or subEvent == "SPELL_AURA_REFRESH"
-                or subEvent == "SPELL_AURA_APPLIED_DOSE")
-            and IsPlayer(destGUID)
-            and spellName then
-            local playerName = UnitName("player")
+        if not spellName or not IsPlayer(destGUID) then return end
 
-            local name, icon, count, debuffType, duration, expirationTime =
-                AuraUtil.FindAuraByName(spellName, "player", "HARMFUL")
+        if subEvent ~= "SPELL_AURA_APPLIED" and subEvent ~= "SPELL_AURA_REFRESH" and subEvent ~= "SPELL_AURA_APPLIED_DOSE" then return end
 
-            if not name then return end
+        local name, icon, count, debuffType = AuraUtil.FindAuraByName(spellName, "player", "HARMFUL")
 
-            local isCC = (not debuffType or debuffType == "")
+        if not name then return end
 
-            if isCC and SynAlertsDB.announceCC then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif debuffType == "Curse" and SynAlertsDB.announceCurse then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif debuffType == "Disease" and SynAlertsDB.announceDisease then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif debuffType == "Poison" and SynAlertsDB.announcePoison then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif debuffType == "Magic" and SynAlertsDB.announceMagic then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif debuffType == "Enrage" and SynAlertsDB.announceEnrage then
-                PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-            elseif SynAlertsDB.announceDots then
-                if debuffType and debuffType ~= "" and
-                    debuffType ~= "Curse" and debuffType ~= "Disease" and
-                    debuffType ~= "Poison" and debuffType ~= "Magic" and
-                    debuffType ~= "Enrage" then
-                    PrintAlert(" {rt8} " .. spellName .. " on " .. playerName .. " {rt8} ")
-                end
+        local config = DEBUFF_TYPE_CONFIG[debuffType]
+        if config and SynAlertsDB[config] then
+            PrintAlert(" {rt8} " .. spellName .. " on " .. UnitName("player") .. " {rt8} ")
+        elseif not debuffType or debuffType == "" then
+            if SynAlertsDB.announceCC then
+                PrintAlert(" {rt8} " .. spellName .. " on " .. UnitName("player") .. " {rt8} ")
             end
+        elseif SynAlertsDB.announceDots and debuffType ~= "Curse" and debuffType ~= "Disease" and debuffType ~= "Poison" and debuffType ~= "Magic" and debuffType ~= "Enrage" then
+            PrintAlert(" {rt8} " .. spellName .. " on " .. UnitName("player") .. " {rt8} ")
         end
     end
 end)
