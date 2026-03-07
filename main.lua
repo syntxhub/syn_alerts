@@ -1,5 +1,5 @@
 local ADDON_NAME = ...
-local ADDON_VERSION = "1.1.5"
+local ADDON_VERSION = "1.1"
 local REQUIRED_INTERFACE = 20505
 
 if not ADDON_NAME or ADDON_NAME == "" then
