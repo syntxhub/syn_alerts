@@ -2,6 +2,6 @@
 ## Title: syn_alerts
 ## Notes: Party alert system
 ## Author: Syn
-## Version: 1.1.5
+## Version: 1.1
 ## SavedVariables: SynAlertsDB
 main.lua
